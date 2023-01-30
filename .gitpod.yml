@@ -1,6 +1,8 @@
 image: gitpod/workspace-go:latest
 
 tasks:
+  - name: install strace
+    init: sudo apt-get install -y strace
   - name: install staticcheck
     init: go install honnef.co/go/tools/cmd/staticcheck@latest
   - name: install go-task

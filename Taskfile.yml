@@ -1,0 +1,17 @@
+version: '3'
+
+vars:
+  APPNAME: ./app
+  SYSCALLLOG: syscall.log
+  COMMANDOUT: out.txt
+  STRACEFILTER: openat,read,write,clone,close
+
+tasks:
+  run:
+    cmds:
+      - go build -o {{ .APPNAME }}
+      - strace -y -f -e {{ .STRACEFILTER }} {{ .APPNAME }} 2>&1 1>/dev/null | tee {{ .SYSCALLLOG }}
+  clean:
+    cmds:
+      - rm -f {{ .APPNAME }} {{ .COMMANDOUT }} {{ .SYSCALLLOG }}
+
