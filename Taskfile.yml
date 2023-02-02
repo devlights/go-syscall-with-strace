@@ -7,11 +7,35 @@ vars:
   STRACEFILTER: openat,read,write,clone,close
 
 tasks:
-  run:
+  run-basic:
+    dir: cmd/basic
     cmds:
       - go build -o {{ .APPNAME }}
       - strace -y -f -e {{ .STRACEFILTER }} {{ .APPNAME }} 2>&1 1>/dev/null | tee {{ .SYSCALLLOG }}
+  run-buffered:
+    dir: cmd/buffered
+    cmds:
+      - go build -o {{ .APPNAME }}
+      - strace -y -e write {{ .APPNAME }} 2>&1 1>/dev/null | tee {{ .SYSCALLLOG }}
+  run-unbuffered:
+    dir: cmd/unbuffered
+    cmds:
+      - go build -o {{ .APPNAME }}
+      - strace -y -e write {{ .APPNAME }} 2>&1 1>/dev/null | tee {{ .SYSCALLLOG }}
   clean:
     cmds:
+      - task: _clean-basic
+      - task: _clean-buffered
+      - task: _clean-unbuffered
+  _clean-basic:
+    dir: cmd/basic
+    cmds:
       - rm -f {{ .APPNAME }} {{ .COMMANDOUT }} {{ .SYSCALLLOG }}
-
+  _clean-buffered:
+    dir: cmd/buffered
+    cmds:
+      - rm -f {{ .APPNAME }} {{ .COMMANDOUT }} {{ .SYSCALLLOG }}
+  _clean-unbuffered:
+    dir: cmd/unbuffered
+    cmds:
+      - rm -f {{ .APPNAME }} {{ .COMMANDOUT }} {{ .SYSCALLLOG }}
